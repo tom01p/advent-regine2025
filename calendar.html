@@ -18,6 +18,7 @@ body {
     margin: 20px;
 }
 
+/* Türchen-Design */
 .door {
     background: linear-gradient(135deg, #8b0000, #b30000);
     color: #fffbe6;
@@ -32,12 +33,43 @@ body {
     transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
+/* GOLD-GLOW beim Hover */
 .door:hover {
-    transform: scale(1.07);
-    box-shadow: 0 0 20px rgba(255,215,0,0.7);
+    transform: scale(1.12);
+    box-shadow:
+        0 0 15px rgba(255,215,0,0.7),
+        0 0 30px rgba(255,215,0,0.5),
+        0 0 45px rgba(255,215,0,0.3);
 }
 
-/* Bilder IMMER responsive */
+/* Geöffnete Türchen (persistenter Zustand) */
+.opened {
+    background: #aaaaaa !important;
+    color: #ffffff;
+    opacity: 0.6;
+    box-shadow: none !important;
+    transform: none !important;
+    cursor: default;
+}
+
+/* Schneefall */
+.snowflake {
+  position: fixed;
+  top: -10px;
+  color: white;
+  font-size: 1em;
+  user-select: none;
+  pointer-events: none;
+  z-index: 9999;
+  animation: snowfall linear infinite;
+}
+
+@keyframes snowfall {
+  0% { transform: translateY(-10vh); opacity: 1; }
+  100% { transform: translateY(110vh); opacity: 0; }
+}
+
+/* Bilder responsive */
 img {
     max-width: 100%;
     height: auto;
@@ -51,13 +83,13 @@ img {
 
 <h1>Adventskalender 2025 für Regine</h1>
 
-<!-- Zufällige Türchen kommen hier rein -->
+<!-- Türchen kommen dynamisch -->
 <div class="grid" id="kalender"></div>
 
 <div id="content"></div>
 
 <script>
-// ---- Texte und Orte für Regine ----
+// ----------------- Texte -----------------
 const texts = {
   1: "Butterfly Garden, Changi Airport Singapore",
   2: "Lake Wanaka, New Zealand",
@@ -85,29 +117,36 @@ const texts = {
  24: "Frohe Weihnachten meine Liebe, ich denke an Dich"
 };
 
-// ---- Random-Shuffle erzeugen ----
+// ----------------- Random-Shuffle -----------------
 const container = document.getElementById("kalender");
 let doors = [];
 
-// Liste 1–24 erzeugen
+// Liste 1–24
 for (let i = 1; i <= 24; i++) doors.push(i);
 
-// Mischen mit Fisher–Yates Shuffle
+// Fisher-Yates Mischen
 for (let i = doors.length - 1; i > 0; i--) {
   const j = Math.floor(Math.random() * (i + 1));
   [doors[i], doors[j]] = [doors[j], doors[i]];
 }
 
-// Türchen dynamisch einfügen
+// Türchen einfügen
 doors.forEach(n => {
-  const elem = document.createElement("div");
-  elem.className = "door";
-  elem.innerText = n;
-  elem.onclick = () => openDoor(n);
-  container.appendChild(elem);
+    const d = document.createElement("div");
+    d.className = "door";
+    d.innerText = n;
+    d.setAttribute("data-door", n);   // wichtig für offenen Zustand
+
+    // Falls schon geöffnet: Stil anpassen
+    if (localStorage.getItem("door_" + n) === "opened") {
+        d.classList.add("opened");
+    }
+
+    d.onclick = () => openDoor(n);
+    container.appendChild(d);
 });
 
-// ---- Tür öffnen ----
+// ----------------- Tür öffnen + speichern -----------------
 function openDoor(n){
   const today = new Date();
   const day = today.getDate();
@@ -115,12 +154,36 @@ function openDoor(n){
     alert("Erst am " + n + ". Dezember geöffnet!");
     return;
   }
+
   document.getElementById('content').innerHTML =
     '<img src="img_' + String(n).padStart(2, "0") + '.jpeg">' +
     '<p style="font-size: 1.4em; margin-top: 15px; text-align: center;">' +
     (texts[n] || "") +
     '</p>';
+
+  // Zustand speichern
+  localStorage.setItem("door_" + n, "opened");
+
+  // Aussehen ändern
+  const elem = document.querySelector('[data-door="'+n+'"]');
+  if (elem) elem.classList.add("opened");
 }
+
+// ----------------- Schneefall -----------------
+function createSnowflake() {
+    const snow = document.createElement("div");
+    snow.classList.add("snowflake");
+    snow.innerHTML = "❄";
+    snow.style.left = Math.random() * 100 + "vw";
+    snow.style.fontSize = (Math.random() * 12 + 10) + "px";
+    const duration = Math.random() * 5 + 4;
+    snow.style.animationDuration = duration + "s";
+    document.body.appendChild(snow);
+    setTimeout(() => snow.remove(), duration * 1000);
+}
+
+// alle 200 ms eine Schneeflocke
+setInterval(createSnowflake, 200);
 </script>
 
 </body>
