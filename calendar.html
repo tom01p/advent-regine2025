@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Adventskalender für Regine</title>
+<title>Adventskalender 2025 für Regine</title>
 
 <style>
 body {
@@ -10,15 +10,17 @@ body {
     background: #f5efe6;
     text-align: center;
 }
+
 .grid {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
     gap: 10px;
     margin: 20px;
 }
+
 .door {
     background: linear-gradient(135deg, #8b0000, #b30000);
-    color: #fffbe6; /* edles cremeweiß */
+    color: #fffbe6;
     padding: 20px;
     border-radius: 8px;
     cursor: pointer;
@@ -30,47 +32,32 @@ body {
     transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
+.door:hover {
+    transform: scale(1.07);
+    box-shadow: 0 0 20px rgba(255,215,0,0.7);
+}
+
+/* Bilder IMMER responsive */
 img {
-    max-width: 90%;
-    margin-top: 20px;
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 20px auto;
 }
 </style>
-
 </head>
+
 <body>
 
 <h1>Adventskalender 2025 für Regine</h1>
 
-<div class="grid">
-    <div class="door" onclick="openDoor(1)">1</div>
-    <div class="door" onclick="openDoor(2)">2</div>
-    <div class="door" onclick="openDoor(3)">3</div>
-    <div class="door" onclick="openDoor(4)">4</div>
-    <div class="door" onclick="openDoor(5)">5</div>
-    <div class="door" onclick="openDoor(6)">6</div>
-    <div class="door" onclick="openDoor(7)">7</div>
-    <div class="door" onclick="openDoor(8)">8</div>
-    <div class="door" onclick="openDoor(9)">9</div>
-    <div class="door" onclick="openDoor(10)">10</div>
-    <div class="door" onclick="openDoor(11)">11</div>
-    <div class="door" onclick="openDoor(12)">12</div>
-    <div class="door" onclick="openDoor(13)">13</div>
-    <div class="door" onclick="openDoor(14)">14</div>
-    <div class="door" onclick="openDoor(15)">15</div>
-    <div class="door" onclick="openDoor(16)">16</div>
-    <div class="door" onclick="openDoor(17)">17</div>
-    <div class="door" onclick="openDoor(18)">18</div>
-    <div class="door" onclick="openDoor(19)">19</div>
-    <div class="door" onclick="openDoor(20)">20</div>
-    <div class="door" onclick="openDoor(21)">21</div>
-    <div class="door" onclick="openDoor(22)">22</div>
-    <div class="door" onclick="openDoor(23)">23</div>
-    <div class="door" onclick="openDoor(24)">24</div>
-</div>
+<!-- Zufällige Türchen kommen hier rein -->
+<div class="grid" id="kalender"></div>
 
 <div id="content"></div>
 
 <script>
+// ---- Texte und Orte für Regine ----
 const texts = {
   1: "Butterfly Garden, Changi Airport Singapore",
   2: "Lake Wanaka, New Zealand",
@@ -98,6 +85,29 @@ const texts = {
  24: "Frohe Weihnachten meine Liebe, ich denke an Dich"
 };
 
+// ---- Random-Shuffle erzeugen ----
+const container = document.getElementById("kalender");
+let doors = [];
+
+// Liste 1–24 erzeugen
+for (let i = 1; i <= 24; i++) doors.push(i);
+
+// Mischen mit Fisher–Yates Shuffle
+for (let i = doors.length - 1; i > 0; i--) {
+  const j = Math.floor(Math.random() * (i + 1));
+  [doors[i], doors[j]] = [doors[j], doors[i]];
+}
+
+// Türchen dynamisch einfügen
+doors.forEach(n => {
+  const elem = document.createElement("div");
+  elem.className = "door";
+  elem.innerText = n;
+  elem.onclick = () => openDoor(n);
+  container.appendChild(elem);
+});
+
+// ---- Tür öffnen ----
 function openDoor(n){
   const today = new Date();
   const day = today.getDate();
@@ -105,10 +115,9 @@ function openDoor(n){
     alert("Erst am " + n + ". Dezember geöffnet!");
     return;
   }
-
   document.getElementById('content').innerHTML =
-    '<img src="img_'+String(n).padStart(2,'0')+'.jpeg">' +
-    '<p style="font-size: 1.6em; margin-top: 20px; text-align: center;">' +
+    '<img src="img_' + String(n).padStart(2, "0") + '.jpeg">' +
+    '<p style="font-size: 1.4em; margin-top: 15px; text-align: center;">' +
     (texts[n] || "") +
     '</p>';
 }
